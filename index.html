@@ -1,0 +1,251 @@
+<!-- http://ankihg.ucoz.com/index/ca_reservoir/0-90 -->
+<html><head>
+
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <title>AnkiHg - ca reservoir</title>
+
+</head>
+<body class="t-body" >
+    <html>
+    <head>
+
+        <script src="https://maps.googleapis.com/maps/api/js"></script>
+
+        <script>
+
+            var map;
+            var buttonDiv;
+            var infoDiv;
+
+            function initialize() {
+                var mapProp = {
+                    center:new google.maps.LatLng(47.6147628,-122.4759888),
+                    zoom:11,
+                    disableDefaultUI:true,
+                    mapTypeId:google.maps.MapTypeId.SATELLITE
+                };
+                map=new google.maps.Map(document.getElementById("googleMap"),mapProp);
+
+                setUp();
+                Quiz.quiz();
+            }
+            google.maps.event.addDomListener(window, 'load', initialize);
+
+            function setUp() {
+                addButtonDiv();
+                Reservoir.init();
+            };
+
+            function addButtonDiv() {
+                buttonDiv = document.getElementById('buttonDiv');
+                if (buttonDiv == null) {
+                    buttonDiv = document.createElement('div');
+                    buttonDiv.id = 'buttonDiv';
+                }
+                map.controls[google.maps.ControlPosition.TOP_LEFT].push(buttonDiv);
+            };
+
+
+            //Quiz class
+            var Quiz = function() {
+
+            };
+
+            Quiz.reservoir = "plz";
+
+            Quiz.quiz = function() {
+                var r = Math.floor(Math.random()*Reservoir.reservoirs.length);
+                Quiz.reservoir = Reservoir.reservoirs[r];
+                Quiz.reservoir.set();
+                Quiz.setInfo();
+            };
+
+            Quiz.reply = function(name) {
+                if (name == Quiz.reservoir.name) {
+                    alert('good job');
+                    Quiz.quiz();
+                };
+            };
+
+            Quiz.setInfo = function() {
+                infoDiv = document.getElementById('infoDiv');
+                if (infoDiv == null) {
+                    infoDiv = document.createElement('div');
+                    infoDiv.id = 'infoDiv';
+                }
+
+                var html = "stream: ".concat(Quiz.reservoir.stream, "<br>");
+                html += "county: ".concat(Quiz.reservoir.county, "<br>");
+                html += "project: ".concat(Quiz.reservoir.project, "<br>");
+                infoDiv.innerHTML = html;
+
+                map.controls[google.maps.ControlPosition.TOP_RIGHT].push(infoDiv);
+            };
+
+            //Reservoir class
+            var Reservoir = function(name, lat, lng, zoom, stream, county, project) {
+                this.name = name;
+                this.lat = lat;
+                this.lng = lng;
+                this.zoom = zoom;
+                this.stream = stream;
+                this.county = county;
+                this.project = project;
+
+                Reservoir.reservoirs.push(this);
+            };
+
+            Reservoir.reservoirs = [];
+
+            Reservoir.init = function() {
+                new Reservoir("shasta_lake", 40.7993869,-122.3334595, 11, "sacramento_river", "shasta", "cvp");
+                new Reservoir("lake_oroville", 39.6109814,-121.5406395, 12, "feather_river", "butte", "swp");
+                new Reservoir("trinity_lake", 40.9314242,-122.8733218, 11, "trinity_river", "trinity", "cvp");
+                new Reservoir("new_melones_lake", 37.995742,-120.5380683, 12, "stanislaus_river", "tuolumne,calaveras", "cvp");
+                new Reservoir("san_luis_reservoir", 37.0518775,-121.152826, 13, "california_aqueduct", "merced", "swp,cvp");
+                new Reservoir("don_pedro_reservoir", 37.7999801,-120.4237639, 11, "tuolumne_river", "tuolumne", "mid,tid");
+                new Reservoir("lake_berryessa", 38.5954461,-122.2993274, 12, "putah_creek", "napa", "sid");
+                new Reservoir("lake_almanor", 40.2585493,-121.2151452, 12, "north_feather_river", "plumas", "unffrp");
+                new Reservoir("folsom_lake", 38.7721704,-121.1608485, 12, "american_river", "sacramento", "cvp");
+                new Reservoir("lake_mcclure", 37.628187,-120.3157779, 12, "merced_river", "mariposa", "mid");
+                new Reservoir("pine_flat_lake", 36.8657328,-119.2997615, 13, "kings_river", "fresno", "");
+                new Reservoir("new_bullards_bar_reservoir", 39.456911,-121.1694232, 13, "north_yuba_river", "yuba", "");
+                new Reservoir("diamond_valley_lake", 33.680744,-117.0595979, 13, "inland_feeder", "riverside", "");
+
+            };
+
+            Reservoir.addButtons = function() {
+                addButtonDiv();
+                for (var i=0; i < Reservoir.reservoirs.length; i++) {
+                    Reservoir.reservoirs[i].addButton();
+                    var nbsp = document.createElement('span');
+                    nbsp.innerHTML = "&nbsp; &nbsp;";
+                    buttonDiv.appendChild(nbsp);
+                    if (i%2 == 1) {
+                        buttonDiv.appendChild(document.createElement('div'));
+                    }
+                }
+            };
+
+            Reservoir.prototype.addButton = function() {
+                this.button = document.createElement('div');
+                this.button.id = this.name.concat("_button");
+                this.button.innerHTML = this.name;
+
+                this.button.style.color = "yellow";
+                this.button.style.fontSize = "200%";
+
+                this.button.style.margin = "3%";
+                this.button.style.display = "inline-block";
+                this.button.style.width = "30%";
+
+
+                var reservoir = this;
+                this.button.onclick = function() { Quiz.reply(reservoir.name); };
+
+
+                buttonDiv.appendChild(this.button);
+                //map.controls[google.maps.ControlPosition.BOTTOM_LEFT].push(this.button);
+            };
+
+            Reservoir.prototype.set = function() {
+                var mapProp = {
+                    center:new google.maps.LatLng(this.lat, this.lng),
+                    zoom:this.zoom,
+                    disableDefaultUI:true,
+                    mapTypeId:google.maps.MapTypeId.SATELLITE
+                };
+                map=new google.maps.Map(document.getElementById("googleMap"),mapProp);
+                Reservoir.addButtons();
+            };
+
+
+        </script>
+
+        <style>
+
+            body {
+                overflow: hidden;
+            }
+
+            #buttonDiv {
+                position: absolute;
+                left; 5%;
+                top: 5%;
+                width: 40%;
+                height 90%;
+                color: yellow;
+            }
+
+            #infoDiv {
+                position: absolute;
+                left; 0%;
+                top: 65%;
+                color: white;
+                border: 1px solid white;
+                background-color: black;
+                font-size: 200%;
+                padding: 1%;
+            }
+
+        </style>
+
+
+        <link type="text/css" rel="stylesheet" href="/.s/src/base.css" />
+        <link type="text/css" rel="stylesheet" href="/.s/src/layer7.css" />
+
+        <script type="text/javascript" src="/.s/src/jquery-1.10.2.js"></script>
+
+        <script type="text/javascript" src="/.s/src/uwnd.min.js?2"></script>
+        <script type="text/javascript" src="//s102.ucoz.net/cgi/uutils.fcg?a=uSD&ca=2&ug=999&isp=0&r=0.10418496015189"></script>
+        <script type="text/javascript">//------------UCOZ-JS-INIT_CODE-----------
+            window.ulb = {photoPage:"Go to the page with the photo", closeBtn:"Close", error:"The requested content can&#39;t be uploaded&lt;br/&gt;Please try again later.", next:"Next", prev:"Previous", btnPlay:"Start slideshow", btnToggle:"Change size", };
+            //------------UCOZ-JS-END-----------</script>
+
+            <link type="text/css" rel="stylesheet" href="/.s/src/ulightbox/ulightbox.min.css" />
+            <script type="text/javascript" async defer src="https://www.google.com/recaptcha/api.js?onload=reCallback&render=explicit&hl=en"></script>
+            <script type="text/javascript"   src="/.s/src/ulightbox/ulightbox.min.js"></script>
+            <script type="text/javascript">//------------UCOZ-JS-CODE-----------
+
+                function reCallback() {
+                    $('.g-recaptcha').each(function(index, element ) {
+                        element.setAttribute('rcid', index );
+                        if ($(element).is(':empty') ) grecaptcha.render(element, {sitekey:element.getAttribute('data-sitekey'), theme:element.getAttribute('data-theme'), size:element.getAttribute('data-size') });
+                    });
+                }
+                function reReset(reset ) {
+                    reset && grecaptcha.reset(reset.previousElementSibling.getAttribute('rcid') );
+                    if (!reset ) for (rel in ___grecaptcha_cfg.clients ) grecaptcha.reset(rel );
+                }
+
+                //------------UCOZ-JS-END-----------
+            </script>
+
+            <style type="text/css">.UhideBlock{display:none; }
+            </style>
+            <script type="text/javascript">//<!--
+                function uSocialLogin(t) {
+                    var params = { 'facebook':{ 'width':950, 'height':520 }, 'google':{ 'width':700, 'height':600 }, 'twitter':{ 'width':800, 'height':400 } };
+                    var ref = escape(location.protocol + '//' + ('ankihg.ucoz.com' || location.hostname) + location.pathname + ((location.hash ? ( location.search ? location.search + '&' : '?' ) + 'rnd=' + Date.now() + location.hash : ( location.search || '' ))));
+                    // var ref = escape(location.href);
+                    window.open('/'+t+'?ref='+ref,'conwin','width='+params[t].width+',height='+params[t].height+',status=1,resizable=1,left='+parseInt((screen.availWidth/2)-(params[t].width/2))+',top='+parseInt((screen.availHeight/2)-(params[t].height/2)-20)+'screenX='+parseInt((screen.availWidth/2)-(params[t].width/2))+',screenY='+parseInt((screen.availHeight/2)-(params[t].height/2)-20));
+                    return false;
+                }
+                //--></script>
+
+                <link type="text/css" rel="stylesheet" href="/.s/src/social.css" />
+            </head>
+            <body>
+                <div id="googleMap" style="width:100%;height:100%;"></div>
+                <div id="stateMap" style="width:30%;height:30%;"></div>
+                <div id="buttonDiv"></div>
+                <div id="infoDiv"></div>
+
+
+            </body>
+            </html>
